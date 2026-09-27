@@ -1,0 +1,6 @@
+{
+  "name": "BG Remover — AI Background Removal Dashboard",
+  "description": "Real in-browser AI background removal with WASM segmentation, batch queue, high-res transparent PNG export, and comparison view.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
