@@ -3,16 +3,11 @@ import {
   Download,
   Copy,
   Check,
-  Maximize2,
   ZoomIn,
   ZoomOut,
-  RefreshCw,
   Palette,
-  SlidersHorizontal,
   Split,
-  Eye,
   Sparkles,
-  Layers,
   Upload,
 } from 'lucide-react';
 import { ImageItem, BackgroundSettings } from '../types';
@@ -32,7 +27,7 @@ export const ComparisonViewer: React.FC<ComparisonViewerProps> = ({
 }) => {
   const [sliderPosition, setSliderPosition] = useState<number>(50);
   const [isDragging, setIsDragging] = useState<boolean>(false);
-  const [viewMode, setViewMode] = useState<'split' | 'side' | 'result-only' | 'original-only'>('split');
+  const [viewMode, setViewMode] = useState<'split' | 'side' | 'result-only'>('split');
   const [zoomLevel, setZoomLevel] = useState<number>(1);
   const [copied, setCopied] = useState<boolean>(false);
   const [compositing, setCompositing] = useState<boolean>(false);
@@ -40,7 +35,7 @@ export const ComparisonViewer: React.FC<ComparisonViewerProps> = ({
   // Background replacement state
   const [bgSettings, setBgSettings] = useState<BackgroundSettings>({
     type: 'transparent',
-    color: '#ffffff',
+    color: '#F6DFA6',
     gradient: 'sunset',
     blurAmount: 16,
   });
@@ -109,7 +104,6 @@ export const ComparisonViewer: React.FC<ComparisonViewerProps> = ({
           customImageUrl: bgSettings.customImageUrl,
         }
       );
-      const ext = bgSettings.type === 'transparent' ? 'png' : 'jpg';
       const cleanName = item.name.replace(/\.[^/.]+$/, '');
       downloadBlob(compositedBlob, `${cleanName}_nobg_${bgSettings.type}.png`);
     } catch (err) {
@@ -131,25 +125,24 @@ export const ComparisonViewer: React.FC<ComparisonViewerProps> = ({
     }
   };
 
-  // Compute CSS background style for container based on selected background
   const getBackgroundStyle = (): React.CSSProperties => {
     if (bgSettings.type === 'color') {
       return { backgroundColor: bgSettings.color };
     }
     if (bgSettings.type === 'gradient') {
+      if (bgSettings.gradient === 'warm-glow') {
+        return { background: 'linear-gradient(135deg, #F6DFA6 0%, #c9833b 100%)' };
+      }
       if (bgSettings.gradient === 'sunset') {
-        return { background: 'linear-gradient(135deg, #f97316 0%, #ec4899 100%)' };
+        return { background: 'linear-gradient(135deg, #c9833b 0%, #171717 100%)' };
       }
-      if (bgSettings.gradient === 'ocean') {
-        return { background: 'linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%)' };
+      if (bgSettings.gradient === 'cream-sand') {
+        return { background: 'linear-gradient(135deg, #fff4d8 0%, #F6DFA6 100%)' };
       }
-      if (bgSettings.gradient === 'studio') {
-        return { background: 'linear-gradient(135deg, #334155 0%, #0f172a 100%)' };
+      if (bgSettings.gradient === 'deep-dark') {
+        return { background: 'linear-gradient(135deg, #222222 0%, #171717 100%)' };
       }
-      if (bgSettings.gradient === 'cyber') {
-        return { background: 'linear-gradient(135deg, #8b5cf6 0%, #06b6d4 100%)' };
-      }
-      return { background: 'linear-gradient(135deg, #e2e8f0 0%, #94a3b8 100%)' };
+      return { background: 'linear-gradient(135deg, #F6DFA6 0%, #c9833b 100%)' };
     }
     if (bgSettings.type === 'blur') {
       return {
@@ -157,7 +150,7 @@ export const ComparisonViewer: React.FC<ComparisonViewerProps> = ({
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         filter: `blur(${bgSettings.blurAmount}px)`,
-        transform: 'scale(1.1)', // hide blur edges
+        transform: 'scale(1.1)',
       };
     }
     if (bgSettings.type === 'custom' && bgSettings.customImageUrl) {
@@ -167,26 +160,25 @@ export const ComparisonViewer: React.FC<ComparisonViewerProps> = ({
         backgroundPosition: 'center',
       };
     }
-    // Transparent checkerboard default
     return {};
   };
 
   return (
-    <div className="bg-neutral-900/90 border border-neutral-800 rounded-2xl overflow-hidden shadow-2xl backdrop-blur-xl">
+    <div className="bg-[#171717] border border-[#a89f94]/30 rounded-3xl overflow-hidden shadow-2xl backdrop-blur-xl">
       {/* Top Header of Viewer */}
-      <div className="px-5 py-3.5 border-b border-neutral-800 flex flex-wrap items-center justify-between gap-3 bg-neutral-950/60">
+      <div className="px-5 py-4 border-b border-[#a89f94]/20 flex flex-wrap items-center justify-between gap-3 bg-[#222222]/80">
         <div className="flex items-center gap-3">
-          <div className="font-semibold text-sm text-white truncate max-w-xs sm:max-w-md">
+          <div className="font-bold text-sm text-[#fff4d8] truncate max-w-xs sm:max-w-md">
             {item.name}
           </div>
-          <div className="hidden sm:flex items-center gap-2 text-xs text-neutral-400 font-mono tabular-nums">
+          <div className="hidden sm:flex items-center gap-2 text-xs text-[#a89f94] font-mono tabular-nums">
             <span>{item.width} × {item.height}px</span>
             <span>·</span>
             <span>{formatBytes(item.resultSize || item.originalSize)}</span>
             {item.processingTimeMs && (
               <>
                 <span>·</span>
-                <span className="text-emerald-400 font-medium">
+                <span className="text-[#F6DFA6] font-semibold">
                   {formatDuration(item.processingTimeMs)}
                 </span>
               </>
@@ -196,52 +188,49 @@ export const ComparisonViewer: React.FC<ComparisonViewerProps> = ({
 
         {/* Action Controls */}
         <div className="flex items-center gap-2">
-          {/* View mode buttons */}
-          <div className="flex items-center bg-neutral-900 border border-neutral-800 rounded-lg p-0.5 text-xs">
+          {/* View mode toggle */}
+          <div className="flex items-center bg-[#171717] border border-[#a89f94]/25 rounded-xl p-0.5 text-xs">
             <button
               onClick={() => setViewMode('split')}
-              className={`px-2.5 py-1 rounded-md transition-colors ${
-                viewMode === 'split' ? 'bg-neutral-800 text-white font-medium' : 'text-neutral-400 hover:text-white'
+              className={`px-3 py-1 rounded-lg transition-all ${
+                viewMode === 'split' ? 'bg-[#F6DFA6] text-[#171717] font-bold shadow-sm' : 'text-[#a89f94] hover:text-[#fff4d8]'
               }`}
-              title="Split comparison slider"
             >
-              Split
+              Split Slider
             </button>
             <button
               onClick={() => setViewMode('side')}
-              className={`px-2.5 py-1 rounded-md transition-colors ${
-                viewMode === 'side' ? 'bg-neutral-800 text-white font-medium' : 'text-neutral-400 hover:text-white'
+              className={`px-3 py-1 rounded-lg transition-all ${
+                viewMode === 'side' ? 'bg-[#F6DFA6] text-[#171717] font-bold shadow-sm' : 'text-[#a89f94] hover:text-[#fff4d8]'
               }`}
-              title="Side by side"
             >
-              Side
+              Side-by-Side
             </button>
             <button
               onClick={() => setViewMode('result-only')}
-              className={`px-2.5 py-1 rounded-md transition-colors ${
-                viewMode === 'result-only' ? 'bg-neutral-800 text-white font-medium' : 'text-neutral-400 hover:text-white'
+              className={`px-3 py-1 rounded-lg transition-all ${
+                viewMode === 'result-only' ? 'bg-[#F6DFA6] text-[#171717] font-bold shadow-sm' : 'text-[#a89f94] hover:text-[#fff4d8]'
               }`}
-              title="Cutout only"
             >
               Cutout
             </button>
           </div>
 
           {/* Zoom controls */}
-          <div className="hidden sm:flex items-center bg-neutral-900 border border-neutral-800 rounded-lg p-0.5 text-xs text-neutral-400">
+          <div className="hidden sm:flex items-center bg-[#171717] border border-[#a89f94]/25 rounded-xl p-0.5 text-xs text-[#a89f94]">
             <button
               onClick={() => setZoomLevel((z) => Math.max(0.5, z - 0.25))}
-              className="p-1 hover:text-white transition-colors"
+              className="p-1 hover:text-[#fff4d8] transition-colors"
               title="Zoom out"
             >
               <ZoomOut className="w-3.5 h-3.5" />
             </button>
-            <span className="px-1.5 font-mono text-[11px] tabular-nums">
+            <span className="px-2 font-mono text-[11px] tabular-nums text-[#fff4d8]">
               {Math.round(zoomLevel * 100)}%
             </span>
             <button
               onClick={() => setZoomLevel((z) => Math.min(3, z + 0.25))}
-              className="p-1 hover:text-white transition-colors"
+              className="p-1 hover:text-[#fff4d8] transition-colors"
               title="Zoom in"
             >
               <ZoomIn className="w-3.5 h-3.5" />
@@ -249,7 +238,7 @@ export const ComparisonViewer: React.FC<ComparisonViewerProps> = ({
             {zoomLevel !== 1 && (
               <button
                 onClick={() => setZoomLevel(1)}
-                className="p-1 hover:text-white text-[11px]"
+                className="px-1.5 py-0.5 hover:text-[#F6DFA6] text-[11px] font-mono"
                 title="Reset zoom"
               >
                 1:1
@@ -260,13 +249,13 @@ export const ComparisonViewer: React.FC<ComparisonViewerProps> = ({
           {/* Copy to clipboard */}
           <button
             onClick={handleCopyClipboard}
-            className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-neutral-300 bg-neutral-900 border border-neutral-700/80 rounded-lg hover:bg-neutral-800 hover:text-white transition-colors"
+            className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#fff4d8] bg-[#171717] border border-[#a89f94]/30 rounded-xl hover:bg-[#222222] transition-colors"
             title="Copy cutout image directly to clipboard"
           >
             {copied ? (
               <>
-                <Check className="w-3.5 h-3.5 text-emerald-400" />
-                <span className="text-emerald-400">Copied!</span>
+                <Check className="w-3.5 h-3.5 text-[#F6DFA6]" />
+                <span className="text-[#F6DFA6]">Copied!</span>
               </>
             ) : (
               <>
@@ -280,25 +269,25 @@ export const ComparisonViewer: React.FC<ComparisonViewerProps> = ({
           <button
             onClick={handleDownloadComposited}
             disabled={compositing}
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-neutral-950 bg-emerald-400 hover:bg-emerald-300 rounded-lg shadow-sm transition-colors"
+            className="inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-bold text-[#171717] bg-gradient-to-r from-[#F6DFA6] to-[#c9833b] hover:brightness-110 rounded-xl shadow-md transition-all glow-gold"
           >
             {compositing ? (
-              <div className="w-3.5 h-3.5 border-2 border-neutral-950 border-t-transparent rounded-full animate-spin" />
+              <div className="w-3.5 h-3.5 border-2 border-[#171717] border-t-transparent rounded-full animate-spin" />
             ) : (
               <Download className="w-3.5 h-3.5" />
             )}
             <span>
-              {bgSettings.type === 'transparent' ? 'Download PNG' : 'Export Image'}
+              {bgSettings.type === 'transparent' ? 'Export PNG' : 'Export Image'}
             </span>
           </button>
         </div>
       </div>
 
       {/* Main Preview Canvas Area */}
-      <div className="p-4 sm:p-6 bg-neutral-950/40">
+      <div className="p-4 sm:p-6 bg-[#171717]">
         <div
           ref={containerRef}
-          className="relative mx-auto rounded-xl overflow-hidden border border-neutral-800/80 select-none shadow-2xl flex items-center justify-center min-h-[360px] max-h-[580px] bg-neutral-950"
+          className="relative mx-auto rounded-2xl overflow-hidden border border-[#a89f94]/30 select-none shadow-2xl flex items-center justify-center min-h-[360px] max-h-[580px] bg-[#171717]"
           style={{
             maxWidth: '1000px',
             aspectRatio: item.width && item.height ? `${item.width} / ${item.height}` : '4/3',
@@ -312,7 +301,7 @@ export const ComparisonViewer: React.FC<ComparisonViewerProps> = ({
             {/* View Mode: Split Slider */}
             {viewMode === 'split' && (
               <div className="relative w-full h-full">
-                {/* 1. Original Image (Full width background) */}
+                {/* Original Image */}
                 <img
                   src={item.originalUrl}
                   alt="Original"
@@ -320,7 +309,7 @@ export const ComparisonViewer: React.FC<ComparisonViewerProps> = ({
                   className="absolute inset-0 w-full h-full object-contain pointer-events-none"
                 />
 
-                {/* 2. Cutout foreground with custom background layer (clipped to slider position) */}
+                {/* Cutout foreground with custom background layer */}
                 <div
                   className="absolute inset-0 overflow-hidden"
                   style={{ width: `${sliderPosition}%` }}
@@ -345,31 +334,30 @@ export const ComparisonViewer: React.FC<ComparisonViewerProps> = ({
                     referrerPolicy="no-referrer"
                     className="absolute inset-0 w-full h-full object-contain pointer-events-none"
                     style={{
-                      // Ensure cutout aligns exactly with original regardless of clipping width
                       width: containerRef.current ? `${containerRef.current.clientWidth}px` : '100%',
                       maxWidth: 'none',
                     }}
                   />
 
-                  {/* "Removed" water-quiet label */}
-                  <div className="absolute top-3 left-3 px-2 py-1 bg-neutral-950/70 backdrop-blur-md rounded text-[11px] font-medium text-emerald-400 border border-neutral-800 pointer-events-none">
-                    No Background
+                  {/* Quiet label */}
+                  <div className="absolute top-3 left-3 px-2.5 py-1 bg-[#171717]/85 backdrop-blur-md rounded-lg text-[11px] font-semibold text-[#F6DFA6] border border-[#a89f94]/30 pointer-events-none shadow-sm">
+                    Isolated Subject
                   </div>
                 </div>
 
-                {/* "Original" quiet label */}
-                <div className="absolute top-3 right-3 px-2 py-1 bg-neutral-950/70 backdrop-blur-md rounded text-[11px] font-medium text-neutral-400 border border-neutral-800 pointer-events-none">
-                  Original
+                {/* Original quiet label */}
+                <div className="absolute top-3 right-3 px-2.5 py-1 bg-[#171717]/85 backdrop-blur-md rounded-lg text-[11px] font-semibold text-[#a89f94] border border-[#a89f94]/30 pointer-events-none shadow-sm">
+                  Original Image
                 </div>
 
-                {/* Draggable Divider Handle */}
+                {/* Draggable Divider Handle with custom peach/amber theme */}
                 <div
-                  className="absolute top-0 bottom-0 w-0.5 bg-white/90 shadow-lg cursor-ew-resize z-20"
+                  className="absolute top-0 bottom-0 w-0.5 bg-gradient-to-b from-[#F6DFA6] via-[#fff4d8] to-[#c9833b] shadow-2xl cursor-ew-resize z-20"
                   style={{ left: `${sliderPosition}%` }}
                   onMouseDown={handleMouseDown}
                   onTouchStart={handleTouchStart}
                 >
-                  <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-white text-neutral-900 shadow-xl border border-neutral-300 flex items-center justify-center hover:scale-110 active:scale-95 transition-transform">
+                  <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-9 h-9 rounded-full bg-[#171717] text-[#F6DFA6] shadow-2xl border-2 border-[#F6DFA6] flex items-center justify-center hover:scale-110 active:scale-95 transition-transform glow-gold">
                     <Split className="w-4 h-4" />
                   </div>
                 </div>
@@ -378,20 +366,20 @@ export const ComparisonViewer: React.FC<ComparisonViewerProps> = ({
 
             {/* View Mode: Side by Side */}
             {viewMode === 'side' && (
-              <div className="grid grid-cols-2 w-full h-full gap-2 p-2">
-                <div className="relative rounded-lg overflow-hidden border border-neutral-800/80 bg-neutral-950 flex items-center justify-center">
+              <div className="grid grid-cols-2 w-full h-full gap-3 p-3">
+                <div className="relative rounded-xl overflow-hidden border border-[#a89f94]/25 bg-[#171717] flex items-center justify-center">
                   <img
                     src={item.originalUrl}
                     alt="Original"
                     referrerPolicy="no-referrer"
                     className="w-full h-full object-contain"
                   />
-                  <span className="absolute top-2 left-2 text-[10px] uppercase font-mono px-2 py-0.5 bg-neutral-950/80 text-neutral-300 rounded border border-neutral-800">
+                  <span className="absolute top-2 left-2 text-[10px] uppercase font-mono px-2 py-0.5 bg-[#171717]/80 text-[#a89f94] rounded border border-[#a89f94]/25">
                     Original
                   </span>
                 </div>
 
-                <div className="relative rounded-lg overflow-hidden border border-neutral-800/80 flex items-center justify-center">
+                <div className="relative rounded-xl overflow-hidden border border-[#a89f94]/25 flex items-center justify-center">
                   {bgSettings.type === 'transparent' ? (
                     <div className="absolute inset-0 bg-checkered" />
                   ) : (
@@ -403,7 +391,7 @@ export const ComparisonViewer: React.FC<ComparisonViewerProps> = ({
                     referrerPolicy="no-referrer"
                     className="relative w-full h-full object-contain z-10"
                   />
-                  <span className="absolute top-2 left-2 text-[10px] uppercase font-mono px-2 py-0.5 bg-neutral-950/80 text-emerald-400 rounded border border-neutral-800 z-20">
+                  <span className="absolute top-2 left-2 text-[10px] uppercase font-mono px-2 py-0.5 bg-[#171717]/85 text-[#F6DFA6] rounded border border-[#F6DFA6]/40 z-20">
                     Isolated Cutout
                   </span>
                 </div>
@@ -430,16 +418,16 @@ export const ComparisonViewer: React.FC<ComparisonViewerProps> = ({
         </div>
       </div>
 
-      {/* Bottom Custom Background & Replacement Studio Toolbar */}
-      <div className="px-5 py-4 border-t border-neutral-800 bg-neutral-950/90 space-y-3">
+      {/* Backdrop Studio Toolbar using the new Palette */}
+      <div className="px-5 py-4 border-t border-[#a89f94]/20 bg-[#222222]/80 space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-2 text-xs font-semibold text-neutral-300">
-            <Palette className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Background Replacement Studio:</span>
+          <div className="flex items-center gap-2 text-xs font-bold text-[#fff4d8]">
+            <Palette className="w-3.5 h-3.5 text-[#F6DFA6]" />
+            <span>Interactive Backdrop Studio:</span>
           </div>
 
-          <div className="text-[11px] text-neutral-400">
-            Click any backdrop below to preview & export
+          <div className="text-[11px] text-[#a89f94] font-mono">
+            Preview & export against solid, gradient, or custom backdrops
           </div>
         </div>
 
@@ -448,62 +436,88 @@ export const ComparisonViewer: React.FC<ComparisonViewerProps> = ({
           {/* Transparent Checkered */}
           <button
             onClick={() => setBgSettings((s) => ({ ...s, type: 'transparent' }))}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium border flex items-center gap-1.5 transition-all ${
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold border flex items-center gap-1.5 transition-all ${
               bgSettings.type === 'transparent'
-                ? 'bg-neutral-800 border-emerald-500 text-white shadow-sm'
-                : 'bg-neutral-900 border-neutral-800 text-neutral-400 hover:text-white hover:border-neutral-700'
+                ? 'bg-[#171717] border-[#F6DFA6] text-[#F6DFA6] shadow-sm glow-gold'
+                : 'bg-[#171717]/60 border-[#a89f94]/25 text-[#a89f94] hover:text-[#fff4d8] hover:border-[#a89f94]/50'
             }`}
           >
-            <div className="w-3.5 h-3.5 rounded border border-neutral-600 bg-checkered shrink-0" />
+            <div className="w-3.5 h-3.5 rounded border border-[#a89f94]/40 bg-checkered shrink-0" />
             <span>Transparent (PNG)</span>
           </button>
 
-          {/* Solid White */}
+          {/* Warm Sand #F6DFA6 */}
           <button
-            onClick={() => setBgSettings((s) => ({ ...s, type: 'color', color: '#ffffff' }))}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium border flex items-center gap-1.5 transition-all ${
-              bgSettings.type === 'color' && bgSettings.color === '#ffffff'
-                ? 'bg-neutral-800 border-emerald-500 text-white'
-                : 'bg-neutral-900 border-neutral-800 text-neutral-400 hover:text-white hover:border-neutral-700'
+            onClick={() => setBgSettings((s) => ({ ...s, type: 'color', color: '#F6DFA6' }))}
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold border flex items-center gap-1.5 transition-all ${
+              bgSettings.type === 'color' && bgSettings.color === '#F6DFA6'
+                ? 'bg-[#171717] border-[#F6DFA6] text-[#F6DFA6] shadow-sm glow-gold'
+                : 'bg-[#171717]/60 border-[#a89f94]/25 text-[#a89f94] hover:text-[#fff4d8] hover:border-[#a89f94]/50'
             }`}
           >
-            <div className="w-3.5 h-3.5 rounded bg-white border border-neutral-400 shrink-0" />
-            <span>Pure White</span>
+            <div className="w-3.5 h-3.5 rounded bg-[#F6DFA6] border border-[#a89f94]/40 shrink-0" />
+            <span>Warm Sand</span>
           </button>
 
-          {/* Solid Studio Black */}
+          {/* Soft Cream #fff4d8 */}
           <button
-            onClick={() => setBgSettings((s) => ({ ...s, type: 'color', color: '#0f172a' }))}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium border flex items-center gap-1.5 transition-all ${
-              bgSettings.type === 'color' && bgSettings.color === '#0f172a'
-                ? 'bg-neutral-800 border-emerald-500 text-white'
-                : 'bg-neutral-900 border-neutral-800 text-neutral-400 hover:text-white hover:border-neutral-700'
+            onClick={() => setBgSettings((s) => ({ ...s, type: 'color', color: '#fff4d8' }))}
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold border flex items-center gap-1.5 transition-all ${
+              bgSettings.type === 'color' && bgSettings.color === '#fff4d8'
+                ? 'bg-[#171717] border-[#F6DFA6] text-[#F6DFA6] shadow-sm glow-gold'
+                : 'bg-[#171717]/60 border-[#a89f94]/25 text-[#a89f94] hover:text-[#fff4d8] hover:border-[#a89f94]/50'
             }`}
           >
-            <div className="w-3.5 h-3.5 rounded bg-slate-900 border border-slate-700 shrink-0" />
-            <span>Studio Dark</span>
+            <div className="w-3.5 h-3.5 rounded bg-[#fff4d8] border border-[#a89f94]/40 shrink-0" />
+            <span>Soft Cream</span>
           </button>
 
-          {/* Solid Soft Gray */}
+          {/* Studio Charcoal #171717 */}
           <button
-            onClick={() => setBgSettings((s) => ({ ...s, type: 'color', color: '#e2e8f0' }))}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium border flex items-center gap-1.5 transition-all ${
-              bgSettings.type === 'color' && bgSettings.color === '#e2e8f0'
-                ? 'bg-neutral-800 border-emerald-500 text-white'
-                : 'bg-neutral-900 border-neutral-800 text-neutral-400 hover:text-white hover:border-neutral-700'
+            onClick={() => setBgSettings((s) => ({ ...s, type: 'color', color: '#171717' }))}
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold border flex items-center gap-1.5 transition-all ${
+              bgSettings.type === 'color' && bgSettings.color === '#171717'
+                ? 'bg-[#171717] border-[#F6DFA6] text-[#F6DFA6] shadow-sm glow-gold'
+                : 'bg-[#171717]/60 border-[#a89f94]/25 text-[#a89f94] hover:text-[#fff4d8] hover:border-[#a89f94]/50'
             }`}
           >
-            <div className="w-3.5 h-3.5 rounded bg-slate-200 border border-slate-400 shrink-0" />
-            <span>Soft Gray</span>
+            <div className="w-3.5 h-3.5 rounded bg-[#171717] border border-[#a89f94]/40 shrink-0" />
+            <span>Charcoal</span>
+          </button>
+
+          {/* Amber Accent #c9833b */}
+          <button
+            onClick={() => setBgSettings((s) => ({ ...s, type: 'color', color: '#c9833b' }))}
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold border flex items-center gap-1.5 transition-all ${
+              bgSettings.type === 'color' && bgSettings.color === '#c9833b'
+                ? 'bg-[#171717] border-[#F6DFA6] text-[#F6DFA6] shadow-sm glow-gold'
+                : 'bg-[#171717]/60 border-[#a89f94]/25 text-[#a89f94] hover:text-[#fff4d8] hover:border-[#a89f94]/50'
+            }`}
+          >
+            <div className="w-3.5 h-3.5 rounded bg-[#c9833b] border border-[#a89f94]/40 shrink-0" />
+            <span>Warm Amber</span>
+          </button>
+
+          {/* Palette Gradients */}
+          <button
+            onClick={() => setBgSettings((s) => ({ ...s, type: 'gradient', gradient: 'warm-glow' }))}
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold border flex items-center gap-1.5 transition-all ${
+              bgSettings.type === 'gradient' && bgSettings.gradient === 'warm-glow'
+                ? 'bg-[#171717] border-[#F6DFA6] text-[#F6DFA6] shadow-sm glow-gold'
+                : 'bg-[#171717]/60 border-[#a89f94]/25 text-[#a89f94] hover:text-[#fff4d8] hover:border-[#a89f94]/50'
+            }`}
+          >
+            <div className="w-3.5 h-3.5 rounded bg-gradient-to-r from-[#F6DFA6] to-[#c9833b] shrink-0" />
+            <span>Sand & Amber</span>
           </button>
 
           {/* Custom Color Input */}
           <label
-            className={`px-2.5 py-1.5 rounded-lg text-xs font-medium border flex items-center gap-1.5 cursor-pointer transition-all ${
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold border flex items-center gap-1.5 cursor-pointer transition-all ${
               bgSettings.type === 'color' &&
-              !['#ffffff', '#0f172a', '#e2e8f0'].includes(bgSettings.color)
-                ? 'bg-neutral-800 border-emerald-500 text-white'
-                : 'bg-neutral-900 border-neutral-800 text-neutral-400 hover:text-white hover:border-neutral-700'
+              !['#F6DFA6', '#fff4d8', '#171717', '#c9833b'].includes(bgSettings.color)
+                ? 'bg-[#171717] border-[#F6DFA6] text-[#F6DFA6]'
+                : 'bg-[#171717]/60 border-[#a89f94]/25 text-[#a89f94] hover:text-[#fff4d8] hover:border-[#a89f94]/50'
             }`}
           >
             <input
@@ -512,48 +526,23 @@ export const ComparisonViewer: React.FC<ComparisonViewerProps> = ({
               onChange={(e) => setBgSettings((s) => ({ ...s, type: 'color', color: e.target.value }))}
               className="w-3.5 h-3.5 rounded cursor-pointer border-0 p-0 bg-transparent"
             />
-            <span>Custom Color</span>
+            <span>Custom Picker</span>
           </label>
-
-          {/* Gradients */}
-          <button
-            onClick={() => setBgSettings((s) => ({ ...s, type: 'gradient', gradient: 'sunset' }))}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium border flex items-center gap-1.5 transition-all ${
-              bgSettings.type === 'gradient' && bgSettings.gradient === 'sunset'
-                ? 'bg-neutral-800 border-emerald-500 text-white'
-                : 'bg-neutral-900 border-neutral-800 text-neutral-400 hover:text-white hover:border-neutral-700'
-            }`}
-          >
-            <div className="w-3.5 h-3.5 rounded bg-gradient-to-r from-orange-500 to-pink-500 shrink-0" />
-            <span>Sunset Gradient</span>
-          </button>
-
-          <button
-            onClick={() => setBgSettings((s) => ({ ...s, type: 'gradient', gradient: 'ocean' }))}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium border flex items-center gap-1.5 transition-all ${
-              bgSettings.type === 'gradient' && bgSettings.gradient === 'ocean'
-                ? 'bg-neutral-800 border-emerald-500 text-white'
-                : 'bg-neutral-900 border-neutral-800 text-neutral-400 hover:text-white hover:border-neutral-700'
-            }`}
-          >
-            <div className="w-3.5 h-3.5 rounded bg-gradient-to-r from-cyan-500 to-blue-500 shrink-0" />
-            <span>Ocean Gradient</span>
-          </button>
 
           {/* Blur Background */}
           <button
             onClick={() => setBgSettings((s) => ({ ...s, type: 'blur' }))}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium border flex items-center gap-1.5 transition-all ${
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold border flex items-center gap-1.5 transition-all ${
               bgSettings.type === 'blur'
-                ? 'bg-neutral-800 border-emerald-500 text-white'
-                : 'bg-neutral-900 border-neutral-800 text-neutral-400 hover:text-white hover:border-neutral-700'
+                ? 'bg-[#171717] border-[#F6DFA6] text-[#F6DFA6] shadow-sm glow-gold'
+                : 'bg-[#171717]/60 border-[#a89f94]/25 text-[#a89f94] hover:text-[#fff4d8] hover:border-[#a89f94]/50'
             }`}
           >
-            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+            <Sparkles className="w-3.5 h-3.5 text-[#F6DFA6]" />
             <span>Blur Original</span>
           </button>
 
-          {/* Custom Uploaded Background */}
+          {/* Custom Backdrop Upload */}
           <input
             ref={customBgInputRef}
             type="file"
@@ -563,20 +552,20 @@ export const ComparisonViewer: React.FC<ComparisonViewerProps> = ({
           />
           <button
             onClick={() => customBgInputRef.current?.click()}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium border flex items-center gap-1.5 transition-all ${
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold border flex items-center gap-1.5 transition-all ${
               bgSettings.type === 'custom'
-                ? 'bg-neutral-800 border-emerald-500 text-white'
-                : 'bg-neutral-900 border-neutral-800 text-neutral-400 hover:text-white hover:border-neutral-700'
+                ? 'bg-[#171717] border-[#F6DFA6] text-[#F6DFA6] shadow-sm glow-gold'
+                : 'bg-[#171717]/60 border-[#a89f94]/25 text-[#a89f94] hover:text-[#fff4d8] hover:border-[#a89f94]/50'
             }`}
           >
-            <Upload className="w-3.5 h-3.5 text-cyan-400" />
+            <Upload className="w-3.5 h-3.5 text-[#c9833b]" />
             <span>Custom Backdrop Image</span>
           </button>
         </div>
 
         {/* Blur slider if blur is chosen */}
         {bgSettings.type === 'blur' && (
-          <div className="pt-2 flex items-center gap-3 text-xs text-neutral-400 max-w-sm">
+          <div className="pt-2 flex items-center gap-3 text-xs text-[#a89f94] max-w-sm">
             <span className="whitespace-nowrap">Blur Radius:</span>
             <input
               type="range"
@@ -586,9 +575,9 @@ export const ComparisonViewer: React.FC<ComparisonViewerProps> = ({
               onChange={(e) =>
                 setBgSettings((s) => ({ ...s, blurAmount: parseInt(e.target.value) }))
               }
-              className="w-full accent-emerald-500"
+              className="w-full accent-[#F6DFA6]"
             />
-            <span className="font-mono text-[11px] tabular-nums">{bgSettings.blurAmount}px</span>
+            <span className="font-mono text-[11px] tabular-nums text-[#fff4d8]">{bgSettings.blurAmount}px</span>
           </div>
         )}
       </div>

@@ -1,16 +1,23 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import JSZip from 'jszip';
 import { TopBar } from './components/TopBar';
+import { Footer } from './components/Footer';
 import { DropZone } from './components/DropZone';
 import { BatchQueue } from './components/BatchQueue';
 import { ComparisonViewer } from './components/ComparisonViewer';
+import { PrivacyPolicy } from './components/PrivacyPolicy';
+import { TermsAndConditions } from './components/TermsAndConditions';
 import { EngineSettingsModal } from './components/EngineSettingsModal';
+import { InteractiveCanvas3D } from './components/InteractiveCanvas3D';
 import { ImageItem, EngineSettings } from './types';
 import { SampleImageItem } from './data/sampleImages';
 import { removeImageBackground } from './services/remover';
 import { downloadBlob } from './utils/formatters';
+import { TooltipProvider } from '@/components/ui/tooltip';
+import { Cpu, ShieldCheck, Sparkles, Layers, Box, Wand2 } from 'lucide-react';
 
 export default function App() {
+  const [currentPage, setCurrentPage] = useState<'workspace' | 'privacy' | 'terms'>('workspace');
   const [items, setItems] = useState<ImageItem[]>([]);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
@@ -21,7 +28,6 @@ export default function App() {
     enableFallback: true,
   });
 
-  // Track processing queue state with a ref to prevent race conditions during async loop
   const processingRef = useRef<boolean>(false);
   const itemsRef = useRef<ImageItem[]>(items);
   itemsRef.current = items;
@@ -34,7 +40,6 @@ export default function App() {
       const id = 'img_' + Math.random().toString(36).substring(2, 9) + '_' + Date.now();
       const originalUrl = URL.createObjectURL(file);
 
-      // Create an image object to determine natural resolution
       const img = new Image();
       img.onload = () => {
         setItems((prev) =>
@@ -65,6 +70,7 @@ export default function App() {
     });
 
     setItems((prev) => [...prev, ...newItems]);
+    setCurrentPage('workspace');
   }, []);
 
   // Add sample image
@@ -90,6 +96,7 @@ export default function App() {
       };
 
       setItems((prev) => [newItem, ...prev]);
+      setCurrentPage('workspace');
     } catch (err) {
       console.error('Failed to load sample image:', err);
     }
@@ -242,71 +249,135 @@ export default function App() {
   const queuedCount = items.filter((i) => i.status === 'queued').length;
 
   return (
-    <div className="min-h-screen flex flex-col bg-neutral-950 text-neutral-100">
-      {/* Top Bar */}
-      <TopBar
-        onOpenSettings={() => setIsSettingsOpen(true)}
-        onProcessAll={processQueue}
-        onDownloadAllZip={handleDownloadAllZip}
-        onClearQueue={handleClearQueue}
-        isProcessing={isProcessing}
-        queuedCount={queuedCount}
-        completedCount={completedCount}
-        totalCount={items.length}
-      />
+    <TooltipProvider>
+      <div className="min-h-screen flex flex-col bg-[#171717] text-[#fff4d8] relative overflow-hidden">
+        {/* Top Bar with Uraxium organic wave header */}
+        <TopBar
+          currentPage={currentPage}
+          onNavigate={setCurrentPage}
+          onOpenSettings={() => setIsSettingsOpen(true)}
+          onProcessAll={processQueue}
+          onDownloadAllZip={handleDownloadAllZip}
+          onClearQueue={handleClearQueue}
+          isProcessing={isProcessing}
+          queuedCount={queuedCount}
+          completedCount={completedCount}
+          totalCount={items.length}
+        />
 
       {/* Main Viewport */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6">
-        <div className="space-y-6">
-          {/* Active Studio Inspector (when a completed image is active) */}
-          {selectedItem && selectedItem.status === 'completed' && selectedItem.resultUrl && (
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-xs text-neutral-400 px-1">
-                <span className="font-semibold text-white">Preview & Comparison</span>
-                <button
-                  onClick={() => setSelectedItemId(null)}
-                  className="text-[11px] text-neutral-400 hover:text-white"
-                >
-                  Close Preview
-                </button>
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-8 py-8">
+        {currentPage === 'privacy' && (
+          <PrivacyPolicy onBack={() => setCurrentPage('workspace')} />
+        )}
+
+        {currentPage === 'terms' && (
+          <TermsAndConditions onBack={() => setCurrentPage('workspace')} />
+        )}
+
+        {currentPage === 'workspace' && (
+          <div className="space-y-8">
+            {/* Peachweb / Spline style Hero Section with Interactive 3D Canvas */}
+            <div className="relative rounded-3xl overflow-hidden border border-[#a89f94]/25 bg-gradient-to-r from-[#222222]/90 via-[#171717] to-[#222222]/90 shadow-2xl glass-card">
+              {/* Radial background glows */}
+              <div className="absolute top-0 right-1/4 w-96 h-96 bg-[#F6DFA6]/10 rounded-full blur-3xl pointer-events-none" />
+              <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-[#c9833b]/10 rounded-full blur-3xl pointer-events-none" />
+
+              <div className="grid grid-cols-1 lg:grid-cols-12 items-center min-h-[220px]">
+                {/* Hero Text */}
+                <div className="lg:col-span-7 p-6 sm:p-10 space-y-3 z-10">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#F6DFA6]/10 border border-[#F6DFA6]/30 text-[#F6DFA6] text-xs font-semibold tracking-wide">
+                    <Sparkles className="w-3.5 h-3.5 text-[#F6DFA6]" />
+                    <span>Neural In-Browser Foreground Matting</span>
+                  </div>
+
+                  <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-[#fff4d8] leading-tight">
+                    Instant AI Background Removal{' '}
+                    <span className="bg-gradient-to-r from-[#F6DFA6] via-[#fff4d8] to-[#c9833b] bg-clip-text text-transparent">
+                      In Your Browser
+                    </span>
+                  </h1>
+
+                  <p className="text-xs sm:text-sm text-[#a89f94] max-w-xl leading-relaxed">
+                    Zero server uploads, zero API tokens, 100% on-device privacy. Drop high-resolution portraits, product photography, or pet fur for instant transparent PNGs.
+                  </p>
+
+                  <div className="flex flex-wrap items-center gap-3 pt-2">
+                    <span className="flex items-center gap-1.5 text-[#fff4d8] font-mono text-[11px] bg-[#171717]/80 border border-[#a89f94]/30 px-3 py-1 rounded-xl shadow-sm">
+                      <Cpu className="w-3.5 h-3.5 text-[#F6DFA6]" />
+                      <span>ONNX Web WASM</span>
+                    </span>
+                    <span className="flex items-center gap-1.5 text-[#fff4d8] font-mono text-[11px] bg-[#171717]/80 border border-[#a89f94]/30 px-3 py-1 rounded-xl shadow-sm">
+                      <ShieldCheck className="w-3.5 h-3.5 text-[#F6DFA6]" />
+                      <span>Lossless Alpha Matte</span>
+                    </span>
+                  </div>
+                </div>
+
+                {/* 3D Spline / Peachweb Interactive Viewport */}
+                <div className="lg:col-span-5 h-[220px] sm:h-[260px] relative overflow-hidden flex items-center justify-center border-t lg:border-t-0 lg:border-l border-[#a89f94]/20">
+                  <InteractiveCanvas3D />
+                </div>
               </div>
-
-              <ComparisonViewer
-                item={selectedItem}
-                onClose={() => setSelectedItemId(null)}
-                onDownloadItem={handleDownloadItem}
-              />
-            </div>
-          )}
-
-          {/* Layout Grid: Drop Zone + Batch Queue */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-            {/* Left Column: Drop & Upload Area */}
-            <div className={`${items.length > 0 ? 'lg:col-span-5' : 'lg:col-span-12'}`}>
-              <DropZone
-                onFilesSelected={handleFilesSelected}
-                onSampleSelected={handleSampleSelected}
-                compact={items.length > 0}
-              />
             </div>
 
-            {/* Right Column: Batch Queue */}
-            {items.length > 0 && (
-              <div className="lg:col-span-7 space-y-4">
-                <BatchQueue
-                  items={items}
-                  selectedItemId={selectedItemId}
-                  onSelectItem={setSelectedItemId}
-                  onProcessItem={processItem}
-                  onRemoveItem={handleRemoveItem}
+            {/* Active Studio Inspector (when a completed image is active) */}
+            {selectedItem && selectedItem.status === 'completed' && selectedItem.resultUrl && (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between text-xs text-[#a89f94] px-1">
+                  <div className="flex items-center gap-2">
+                    <span className="font-bold text-[#fff4d8]">Comparison Studio</span>
+                    <span className="text-[#a89f94]/50">·</span>
+                    <span className="text-[#F6DFA6] font-mono">Drag divider to inspect edge accuracy</span>
+                  </div>
+                  <button
+                    onClick={() => setSelectedItemId(null)}
+                    className="text-[11px] text-[#a89f94] hover:text-[#fff4d8] transition-colors"
+                  >
+                    Close Preview
+                  </button>
+                </div>
+
+                <ComparisonViewer
+                  item={selectedItem}
+                  onClose={() => setSelectedItemId(null)}
                   onDownloadItem={handleDownloadItem}
-                  isProcessing={isProcessing}
                 />
               </div>
             )}
+
+            {/* Layout Grid: Drop Zone + Batch Queue */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+              {/* Left Column: Drop & Upload Area */}
+              <div className={`${items.length > 0 ? 'lg:col-span-5' : 'lg:col-span-12'}`}>
+                <DropZone
+                  onFilesSelected={handleFilesSelected}
+                  onSampleSelected={handleSampleSelected}
+                  compact={items.length > 0}
+                />
+              </div>
+
+              {/* Right Column: Batch Queue */}
+              {items.length > 0 && (
+                <div className="lg:col-span-7 space-y-4">
+                  <BatchQueue
+                    items={items}
+                    selectedItemId={selectedItemId}
+                    onSelectItem={setSelectedItemId}
+                    onProcessItem={processItem}
+                    onRemoveItem={handleRemoveItem}
+                    onDownloadItem={handleDownloadItem}
+                    isProcessing={isProcessing}
+                  />
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </main>
+
+      {/* Footer with Legal Links and Palette Styling */}
+      <Footer onNavigate={setCurrentPage} />
 
       {/* WASM Engine Diagnostics & Settings Modal */}
       <EngineSettingsModal
@@ -316,5 +387,6 @@ export default function App() {
         onUpdateSettings={setEngineSettings}
       />
     </div>
+    </TooltipProvider>
   );
 }

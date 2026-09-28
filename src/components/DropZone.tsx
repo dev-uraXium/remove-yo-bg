@@ -1,6 +1,9 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { UploadCloud, Plus, Copy } from 'lucide-react';
+import { UploadCloud, Plus, Copy, Sparkles, Wand2 } from 'lucide-react';
 import { SAMPLE_IMAGES, SampleImageItem } from '../data/sampleImages';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
 
 interface DropZoneProps {
   onFilesSelected: (files: File[]) => void;
@@ -17,7 +20,7 @@ export const DropZone: React.FC<DropZoneProps> = ({
   const [pastedRecently, setPastedRecently] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Global paste handler to paste images from clipboard (Ctrl+V or Cmd+V)
+  // Global paste handler to paste images from clipboard
   useEffect(() => {
     const handlePaste = (e: ClipboardEvent) => {
       const items = e.clipboardData?.items;
@@ -58,23 +61,28 @@ export const DropZone: React.FC<DropZoneProps> = ({
     e.preventDefault();
     setIsDragging(false);
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      const imageFiles = Array.from(e.dataTransfer.files).filter((file) =>
-        file.type.startsWith('image/')
-      );
-      if (imageFiles.length > 0) {
-        onFilesSelected(imageFiles);
+      const validFiles: File[] = [];
+      for (let i = 0; i < e.dataTransfer.files.length; i++) {
+        const file = e.dataTransfer.files[i];
+        if (file.type.startsWith('image/')) {
+          validFiles.push(file);
+        }
+      }
+      if (validFiles.length > 0) {
+        onFilesSelected(validFiles);
       }
     }
   };
 
   const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      const imageFiles = Array.from(e.target.files);
-      onFilesSelected(imageFiles);
+      const filesArray = Array.from(e.target.files);
+      onFilesSelected(filesArray);
       e.target.value = '';
     }
   };
 
+  // Compact state used when queue has active items
   if (compact) {
     return (
       <div
@@ -82,10 +90,10 @@ export const DropZone: React.FC<DropZoneProps> = ({
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         onClick={() => fileInputRef.current?.click()}
-        className={`relative border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition-colors ${
+        className={`group border border-dashed rounded-2xl p-4 text-center cursor-pointer transition-all duration-200 ${
           isDragging
-            ? 'border-emerald-500 bg-emerald-500/10'
-            : 'border-neutral-800 bg-neutral-900/40 hover:border-neutral-700 hover:bg-neutral-900/80'
+            ? 'border-[#F6DFA6] bg-[#F6DFA6]/10 glow-gold'
+            : 'border-[#a89f94]/30 hover:border-[#F6DFA6]/60 bg-[#222222]/40 hover:bg-[#222222]/70'
         }`}
       >
         <input
@@ -96,10 +104,12 @@ export const DropZone: React.FC<DropZoneProps> = ({
           onChange={handleFileInputChange}
           className="hidden"
         />
-        <div className="flex items-center justify-center gap-2 text-xs font-medium text-neutral-300">
-          <Plus className="w-4 h-4 text-emerald-400" />
+        <div className="flex items-center justify-center gap-2 text-xs font-semibold text-[#fff4d8]">
+          <div className="w-5 h-5 rounded-lg bg-[#c9833b]/20 flex items-center justify-center text-[#F6DFA6]">
+            <Plus className="w-3.5 h-3.5" />
+          </div>
           <span>Add More Images</span>
-          <span className="text-neutral-500 text-[11px]">(Drop or Ctrl+V)</span>
+          <span className="text-[#a89f94] text-[11px] font-normal">(Drop or Ctrl+V)</span>
         </div>
       </div>
     );
@@ -107,18 +117,22 @@ export const DropZone: React.FC<DropZoneProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* Primary Drop Card */}
-      <div
+      {/* Primary Drop Card with Spline / Peachweb Aesthetic and shadcn Card */}
+      <Card
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         onClick={() => fileInputRef.current?.click()}
-        className={`relative border border-dashed rounded-2xl p-10 sm:p-14 text-center cursor-pointer transition-all duration-200 ${
+        className={`relative group border rounded-3xl p-10 sm:p-14 text-center cursor-pointer transition-all duration-300 overflow-hidden ${
           isDragging
-            ? 'border-emerald-500 bg-emerald-500/10 scale-[1.005]'
-            : 'border-neutral-800 bg-neutral-900/30 hover:border-neutral-700 hover:bg-neutral-900/60 shadow-xl'
+            ? 'border-[#F6DFA6] bg-[#F6DFA6]/10 glow-gold scale-[1.01]'
+            : 'border-[#a89f94]/25 bg-gradient-to-b from-[#222222]/70 via-[#171717]/90 to-[#171717] hover:border-[#F6DFA6]/50 shadow-2xl glass-card'
         }`}
       >
+        {/* Subtle decorative background ambient glow */}
+        <div className="absolute -top-24 -right-24 w-64 h-64 bg-[#c9833b]/15 rounded-full blur-3xl pointer-events-none group-hover:bg-[#F6DFA6]/20 transition-all duration-500" />
+        <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-[#F6DFA6]/10 rounded-full blur-3xl pointer-events-none group-hover:bg-[#c9833b]/20 transition-all duration-500" />
+
         <input
           ref={fileInputRef}
           type="file"
@@ -128,46 +142,58 @@ export const DropZone: React.FC<DropZoneProps> = ({
           className="hidden"
         />
 
-        <div className="max-w-md mx-auto space-y-4">
-          <div className="w-14 h-14 mx-auto rounded-2xl bg-neutral-800/80 border border-neutral-700/60 flex items-center justify-center text-emerald-400 shadow-inner group-hover:scale-110 transition-transform">
-            <UploadCloud className="w-7 h-7" />
+        <div className="relative max-w-md mx-auto space-y-5">
+          {/* Animated Icon Avatar */}
+          <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-[#F6DFA6] via-[#fff4d8] to-[#c9833b] p-[1.5px] shadow-lg group-hover:scale-105 group-hover:rotate-2 transition-all duration-300">
+            <div className="w-full h-full rounded-[14px] bg-[#171717] flex items-center justify-center text-[#F6DFA6]">
+              <UploadCloud className="w-8 h-8 group-hover:text-[#fff4d8] transition-colors" />
+            </div>
           </div>
 
-          <div className="space-y-1.5">
-            <h2 className="text-lg font-semibold text-white tracking-tight">
-              Drag & drop images to remove background
+          <div className="space-y-2">
+            <h2 className="text-xl sm:text-2xl font-bold text-[#fff4d8] tracking-tight group-hover:text-[#F6DFA6] transition-colors">
+              Drag & drop images to isolate subjects
             </h2>
-            <p className="text-xs text-neutral-400 leading-relaxed">
-              Supports single or bulk batch uploads (PNG, JPEG, WebP).
-              <span className="block mt-0.5 text-neutral-500">
-                You can also press <kbd className="px-1.5 py-0.5 text-[11px] font-mono bg-neutral-800 text-neutral-300 rounded border border-neutral-700">Ctrl+V</kbd> to paste directly from clipboard.
+            <p className="text-xs text-[#a89f94] leading-relaxed">
+              Processes completely in your browser with high-fidelity alpha matting.
+              <span className="block mt-1 text-[#a89f94]/80">
+                Supports bulk drops or paste instantly using{' '}
+                <kbd className="px-2 py-0.5 text-[11px] font-mono bg-[#222222] text-[#F6DFA6] rounded-md border border-[#a89f94]/30 shadow-sm">
+                  Ctrl+V
+                </kbd>
               </span>
             </p>
           </div>
 
           <div className="pt-2 flex items-center justify-center gap-3">
-            <button
+            <Button
               type="button"
-              className="px-5 py-2 text-xs font-semibold text-neutral-950 bg-emerald-400 hover:bg-emerald-300 rounded-lg shadow-sm transition-colors"
+              className="px-6 py-2.5 text-xs font-bold text-[#171717] bg-gradient-to-r from-[#F6DFA6] to-[#c9833b] hover:brightness-110 rounded-full shadow-md transition-all glow-gold cursor-pointer"
             >
-              Browse Files
-            </button>
+              Browse Image Files
+            </Button>
           </div>
 
           {pastedRecently && (
-            <div className="pt-2 text-xs text-emerald-400 font-medium flex items-center justify-center gap-1.5 animate-pulse">
+            <div className="pt-2 text-xs text-[#F6DFA6] font-semibold flex items-center justify-center gap-1.5 animate-pulse">
               <Copy className="w-3.5 h-3.5" />
               <span>Image captured from clipboard!</span>
             </div>
           )}
         </div>
-      </div>
+      </Card>
 
       {/* Instant Test Sample Gallery */}
       <div className="space-y-3">
-        <div className="flex items-center justify-between text-xs text-neutral-400 px-1">
-          <span className="font-medium text-neutral-300">Or try a sample image:</span>
-          <span className="hidden sm:inline text-neutral-500 text-[11px]">Click to load & process</span>
+        <div className="flex items-center justify-between text-xs text-[#a89f94] px-1">
+          <div className="flex items-center gap-2">
+            <span className="font-bold text-[#fff4d8]">Quick Test Samples</span>
+            <span className="text-[#a89f94]/50">·</span>
+            <span className="text-[11px]">Click any sample to test foreground extraction</span>
+          </div>
+          <Badge variant="outline" className="border-[#F6DFA6]/30 text-[#F6DFA6] text-[10px] uppercase font-mono">
+            4 Samples
+          </Badge>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -175,21 +201,21 @@ export const DropZone: React.FC<DropZoneProps> = ({
             <button
               key={sample.id}
               onClick={() => onSampleSelected(sample)}
-              className="group text-left border border-neutral-800 hover:border-neutral-700 bg-neutral-900/50 hover:bg-neutral-800/60 rounded-xl p-2.5 transition-all text-xs focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              className="group text-left border border-[#a89f94]/20 hover:border-[#F6DFA6]/60 bg-[#222222]/50 hover:bg-[#222222] rounded-2xl p-2.5 transition-all text-xs focus:outline-none focus:ring-1 focus:ring-[#F6DFA6] glass-card-hover cursor-pointer"
             >
-              <div className="aspect-[4/3] rounded-lg overflow-hidden bg-neutral-950 mb-2 border border-neutral-800/80 relative">
+              <div className="aspect-[4/3] rounded-xl overflow-hidden bg-[#171717] mb-2 border border-[#a89f94]/20 relative">
                 <img
                   src={sample.url}
                   alt={sample.title}
                   referrerPolicy="no-referrer"
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
-                <div className="absolute inset-0 bg-neutral-950/20 group-hover:opacity-0 transition-opacity" />
+                <div className="absolute inset-0 bg-[#171717]/25 group-hover:opacity-0 transition-opacity" />
               </div>
-              <div className="font-medium text-neutral-200 group-hover:text-white truncate">
+              <div className="font-semibold text-[#fff4d8] group-hover:text-[#F6DFA6] truncate">
                 {sample.title}
               </div>
-              <div className="text-[11px] text-neutral-500 truncate mt-0.5">
+              <div className="text-[11px] text-[#a89f94] truncate mt-0.5">
                 {sample.category}
               </div>
             </button>

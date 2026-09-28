@@ -1,11 +1,38 @@
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
+import fs from 'fs';
 import {defineConfig} from 'vite';
 
 export default defineConfig(() => {
   return {
-    plugins: [react(), tailwindcss()],
+    publicDir: path.resolve(__dirname, 'public'),
+    plugins: [
+      react(),
+      tailwindcss(),
+      {
+        name: 'serve-seo-files',
+        configureServer(server) {
+          server.middlewares.use((req, res, next) => {
+            if (req.url === '/sitemap.xml') {
+              const filePath = path.resolve(__dirname, 'public/sitemap.xml');
+              if (fs.existsSync(filePath)) {
+                res.setHeader('Content-Type', 'application/xml');
+                return res.end(fs.readFileSync(filePath));
+              }
+            }
+            if (req.url === '/robots.txt') {
+              const filePath = path.resolve(__dirname, 'public/robots.txt');
+              if (fs.existsSync(filePath)) {
+                res.setHeader('Content-Type', 'text/plain');
+                return res.end(fs.readFileSync(filePath));
+              }
+            }
+            next();
+          });
+        },
+      },
+    ],
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),
