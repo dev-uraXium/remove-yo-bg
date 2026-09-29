@@ -1,3 +1,4 @@
 User-agent: *
 Allow: /
+
 Sitemap: https://isolate-bg.vercel.app/sitemap.xml

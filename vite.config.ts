@@ -40,6 +40,7 @@ export default defineConfig(() => {
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),
+        'cn': path.resolve(__dirname, 'lib/utils.ts'),
       },
     },
     optimizeDeps: {

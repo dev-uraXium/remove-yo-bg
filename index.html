@@ -3,22 +3,109 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>IsolateBG — AI Background Removal Dashboard</title>
-    <meta name="description" content="IsolateBG: Real in-browser AI background removal with WASM segmentation, batch queue, high-res transparent PNG export, and comparison view." />
-    <meta property="og:title" content="IsolateBG — AI Background Removal Dashboard" />
-    <meta property="og:description" content="IsolateBG: Real in-browser AI background removal with WASM segmentation, batch queue, high-res transparent PNG export, and comparison view." />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://isolate-bg.vercel.app/" />
-    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="theme-color" content="#171717" />
+
+    <!-- Primary Meta Tags (Google Search & Core SEO) -->
+    <title>BG Remover — AI Background Removal Dashboard</title>
+    <meta
+      name="title"
+      content="BG Remover — AI Background Removal Dashboard"
+    />
+    <meta
+      name="description"
+      content="Remove backgrounds from images instantly in your browser. 100% client-side AI neural matting, batch processing, and transparent PNG downloads with zero server uploads."
+    />
+    <meta
+      name="keywords"
+      content="background remover, remove bg, transparent background, AI background removal, client side image segmentation, browser WASM AI, cut out photo, batch background removal"
+    />
+    <meta name="author" content="IsolateBG" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
     <link rel="canonical" href="https://isolate-bg.vercel.app/" />
+
+    <!-- Open Graph / Facebook / LinkedIn / Slack -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="IsolateBG" />
+    <meta property="og:url" content="https://isolate-bg.vercel.app/" />
+    <meta
+      property="og:title"
+      content="BG Remover — AI Background Removal Dashboard"
+    />
+    <meta
+      property="og:description"
+      content="Remove backgrounds from images instantly in your browser. 100% client-side AI neural matting, batch processing, and transparent PNG downloads with zero server uploads."
+    />
+    <meta property="og:image" content="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=1200&h=630&q=80" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="AI Background Removal Studio Preview" />
+
+    <!-- Twitter / X -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content="https://isolate-bg.vercel.app/" />
+    <meta
+      name="twitter:title"
+      content="BG Remover — AI Background Removal Dashboard"
+    />
+    <meta
+      name="twitter:description"
+      content="Remove backgrounds from images instantly in your browser. 100% client-side AI neural matting, batch processing, and transparent PNG downloads with zero server uploads."
+    />
+    <meta name="twitter:image" content="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=1200&h=630&q=80" />
+
+    <!-- Sitemap & Discovery -->
     <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <!-- Fonts & Preconnect -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Structured Data (JSON-LD) for Google Search Rich Results -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebApplication",
+          "@id": "https://isolate-bg.vercel.app/#webapp",
+          "name": "BG Remover — AI Background Removal Dashboard",
+          "url": "https://isolate-bg.vercel.app/",
+          "applicationCategory": "MultimediaApplication",
+          "operatingSystem": "All (WebAssembly / Modern Browsers)",
+          "description": "High-fidelity in-browser AI background removal. Processes portrait, product, and pet photos entirely locally using client-side WebAssembly neural models.",
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD",
+            "availability": "https://schema.org/InStock"
+          },
+          "featureList": [
+            "100% Client-side Neural Segmentation (WASM / ONNX)",
+            "Zero Cloud Uploads for complete privacy",
+            "Batch image processing & bulk ZIP download",
+            "Interactive before/after edge inspection slider",
+            "High-resolution transparent PNG export",
+            "Custom background color, gradient, and blur compositing",
+            "Interactive 3D preview viewport"
+          ]
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://isolate-bg.vercel.app/#website",
+          "url": "https://isolate-bg.vercel.app/",
+          "name": "IsolateBG",
+          "description": "Real in-browser AI background removal with WASM segmentation, batch queue, and transparent PNG export."
+        }
+      ]
+    }
+    </script>
   </head>
-  <body class="bg-neutral-950 text-neutral-100 font-sans antialiased selection:bg-emerald-500/20 selection:text-emerald-300 min-h-screen">
+  <body class="bg-neutral-950 text-neutral-100 font-sans antialiased selection:bg-amber-500/20 selection:text-amber-300 min-h-screen">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
-

@@ -206,7 +206,9 @@ export const DropZone: React.FC<DropZoneProps> = ({
               <div className="aspect-[4/3] rounded-xl overflow-hidden bg-[#171717] mb-2 border border-[#a89f94]/20 relative">
                 <img
                   src={sample.url}
-                  alt={sample.title}
+                  alt={`Example input for background removal: ${sample.title} (${sample.category})`}
+                  loading="lazy"
+                  decoding="async"
                   referrerPolicy="no-referrer"
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
