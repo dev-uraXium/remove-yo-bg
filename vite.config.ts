@@ -17,18 +17,38 @@ export default defineConfig(() => {
       {
         name: 'serve-seo-files',
         configureServer(server) {
+          // Returning a function from configureServer installs post-middlewares,
+          // but calling server.middlewares.use before next() installs it before Vite internal HTML transform
           server.middlewares.use((req, res, next) => {
-            if (req.url === '/sitemap.xml') {
-              const filePath = path.resolve(__dirname, 'public/sitemap.xml');
+            const rawUrl = req.url?.split('?')[0] || '';
+            if (rawUrl.startsWith('/google') && rawUrl.endsWith('.html')) {
+              const fileName = rawUrl.replace(/^\//, '');
+              const filePath = path.resolve(__dirname, 'public', fileName);
               if (fs.existsSync(filePath)) {
-                res.setHeader('Content-Type', 'application/xml');
+                res.writeHead(200, {
+                  'Content-Type': 'text/html; charset=utf-8',
+                  'Content-Length': fs.statSync(filePath).size,
+                });
                 return res.end(fs.readFileSync(filePath));
               }
             }
-            if (req.url === '/robots.txt') {
+            if (rawUrl === '/sitemap.xml') {
+              const filePath = path.resolve(__dirname, 'public/sitemap.xml');
+              if (fs.existsSync(filePath)) {
+                res.writeHead(200, {
+                  'Content-Type': 'application/xml; charset=utf-8',
+                  'Content-Length': fs.statSync(filePath).size,
+                });
+                return res.end(fs.readFileSync(filePath));
+              }
+            }
+            if (rawUrl === '/robots.txt') {
               const filePath = path.resolve(__dirname, 'public/robots.txt');
               if (fs.existsSync(filePath)) {
-                res.setHeader('Content-Type', 'text/plain');
+                res.writeHead(200, {
+                  'Content-Type': 'text/plain; charset=utf-8',
+                  'Content-Length': fs.statSync(filePath).size,
+                });
                 return res.end(fs.readFileSync(filePath));
               }
             }
